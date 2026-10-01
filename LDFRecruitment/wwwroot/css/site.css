@@ -1,0 +1,24 @@
+:root {
+    --ldf-green: #1f4d2b;
+    --ldf-green-dark: #163a20;
+    --ldf-gold: #c9a227;
+}
+.ldf-nav { background: var(--ldf-green); }
+.ldf-footer { background: var(--ldf-green-dark); color: #d9e3dc; }
+.btn-ldf { background: var(--ldf-green); color: #fff; border-color: var(--ldf-green); }
+.btn-ldf:hover { background: var(--ldf-green-dark); color: #fff; }
+.hero {
+    background: linear-gradient(135deg, var(--ldf-green-dark), var(--ldf-green));
+    color: #fff;
+    padding: 5rem 0;
+}
+.hero .accent { color: var(--ldf-gold); }
+.step-number {
+    width: 2.5rem; height: 2.5rem; border-radius: 50%;
+    background: var(--ldf-gold); color: #1b1b1b; font-weight: 700;
+    display: inline-flex; align-items: center; justify-content: center;
+}
+.card-hover { transition: transform .15s, box-shadow .15s; }
+.card-hover:hover { transform: translateY(-3px); box-shadow: 0 .5rem 1rem rgba(0,0,0,.12); }
+.checklist li { margin-bottom: .5rem; }
+.low-conf { background: #fff3cd; }

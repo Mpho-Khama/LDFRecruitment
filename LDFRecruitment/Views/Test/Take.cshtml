@@ -1,0 +1,24 @@
+@model TakeTestViewModel
+@{ ViewData["Title"] = "Take test"; var n = 0; }
+<div class="container py-4">
+    <div class="row justify-content-center"><div class="col-lg-8">
+        <h1 class="h3 mb-3">Written test <span class="text-muted fs-6">(@Model.Questions.Count questions)</span></h1>
+        <form asp-action="Submit" method="post" onsubmit="return confirm('Submit your answers? You cannot retake the test.');">
+            @foreach (var q in Model.Questions)
+            {
+                n++;
+                <div class="card mb-3"><div class="card-body">
+                    <p class="fw-semibold mb-2">@n. @q.Text <span class="badge text-bg-light">@q.Category</span></p>
+                    @foreach (var (letter, text) in new[] { ("A", q.OptionA), ("B", q.OptionB), ("C", q.OptionC), ("D", q.OptionD) })
+                    {
+                        <div class="form-check">
+                            <input class="form-check-input" type="radio" name="answers[@q.Id]" id="q@(q.Id)@letter" value="@letter" />
+                            <label class="form-check-label" for="q@(q.Id)@letter">@letter. @text</label>
+                        </div>
+                    }
+                </div></div>
+            }
+            <button class="btn btn-ldf" type="submit">Submit answers</button>
+        </form>
+    </div></div>
+</div>

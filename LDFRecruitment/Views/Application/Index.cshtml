@@ -1,0 +1,70 @@
+@model DashboardViewModel
+@{
+    ViewData["Title"] = "My Application";
+    var app = Model.Application;
+    var draft = app.Status == ApplicationStatus.Draft;
+    var badge = app.Status switch
+    {
+        ApplicationStatus.Shortlisted => "success",
+        ApplicationStatus.NotSelected => "danger",
+        ApplicationStatus.UnderReview => "info",
+        ApplicationStatus.Submitted => "primary",
+        _ => "secondary"
+    };
+}
+<div class="container py-4">
+    <div class="d-flex flex-wrap justify-content-between align-items-center mb-3">
+        <h1 class="h3 mb-0">Welcome, @Model.Applicant.FullName</h1>
+        <span class="fs-6 badge text-bg-@badge">Status: @app.Status</span>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="card"><div class="card-header fw-semibold">Your application checklist</div>
+            <ul class="list-group list-group-flush">
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>1. Personal details @(Model.Applicant.DetailsComplete ? "✔" : "")</span>
+                    @if (draft) { <a class="btn btn-sm btn-outline-secondary" asp-action="Details">@(Model.Applicant.DetailsComplete ? "Edit" : "Complete")</a> }
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>2. Photo and certificate @((Model.HasPhoto && Model.HasCertificate) ? "✔" : "")</span>
+                    @if (draft) { <a class="btn btn-sm btn-outline-secondary" asp-action="Documents">Upload</a> }
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>3. Submit application @(draft ? "" : "✔")</span>
+                    @if (draft)
+                    {
+                        <form asp-action="Submit" method="post" onsubmit="return confirm('Submit your application? You will not be able to change your details or documents afterwards.');">
+                            <button class="btn btn-sm btn-ldf" type="submit" disabled="@(!(Model.Applicant.DetailsComplete && Model.HasPhoto && Model.HasCertificate))">Submit</button>
+                        </form>
+                    }
+                </li>
+                <li class="list-group-item d-flex justify-content-between align-items-center">
+                    <span>4. Written test @(app.TestResult?.IsSubmitted == true ? "✔" : "")</span>
+                    @if (!draft) { <a class="btn btn-sm btn-outline-secondary" asp-controller="Test" asp-action="Index">@(app.TestResult == null ? "Start" : app.TestResult.IsSubmitted ? "View" : "Continue")</a> }
+                </li>
+            </ul></div>
+            @if (draft)
+            {
+                <p class="text-muted small mt-2">Complete steps 1 and 2 to enable submission.</p>
+            }
+            @if (!string.IsNullOrEmpty(app.OfficerNotes))
+            {
+                <div class="alert alert-secondary mt-3"><strong>Officer note:</strong> @app.OfficerNotes</div>
+            }
+        </div>
+
+        <div class="col-lg-5">
+            <div class="card"><div class="card-header fw-semibold">Status history</div>
+            <ul class="list-group list-group-flush">
+                @foreach (var h in app.History.OrderByDescending(h => h.ChangedAt))
+                {
+                    <li class="list-group-item">
+                        <div class="d-flex justify-content-between"><strong>@h.Status</strong><span class="small text-muted">@h.ChangedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm")</span></div>
+                        @if (!string.IsNullOrEmpty(h.Note)) { <div class="small text-muted">@h.Note</div> }
+                    </li>
+                }
+            </ul></div>
+        </div>
+    </div>
+</div>

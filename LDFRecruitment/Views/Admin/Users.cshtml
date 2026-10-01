@@ -1,0 +1,26 @@
+@model List<UserListItem>
+@{ ViewData["Title"] = "Users"; }
+<div class="container py-4">
+    <div class="d-flex justify-content-between mb-3">
+        <h1 class="h3">Users</h1>
+        <a class="btn btn-ldf" asp-action="CreateOfficer">Add officer / admin</a>
+    </div>
+    <table class="table align-middle">
+        <thead class="table-light"><tr><th>Email</th><th>Roles</th><th>Status</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var u in Model)
+        {
+            <tr>
+                <td>@u.Email</td>
+                <td>@u.Roles</td>
+                <td>@(u.IsLocked ? "Locked" : "Active")</td>
+                <td>
+                    <form asp-action="ToggleLock" asp-route-id="@u.Id" method="post">
+                        <button class="btn btn-sm btn-outline-secondary" type="submit">@(u.IsLocked ? "Unlock" : "Lock")</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

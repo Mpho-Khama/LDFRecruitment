@@ -1,0 +1,90 @@
+@{ ViewData["Title"] = "Home"; }
+
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-8">
+                <p class="text-uppercase fw-semibold accent mb-2">Lesotho Defence Force</p>
+                <h1 class="display-5 fw-bold">Apply for LDF recruitment <span class="accent">online</span></h1>
+                <p class="lead mt-3">
+                    Register, submit your details and certificate, and sit the written test from home.
+                    No queues and no travel for the first stage &ndash; you only attend the later physical stages if you are selected.
+                </p>
+                <div class="mt-4 d-flex flex-wrap gap-2">
+                    @if (User.IsInRole(Roles.Applicant))
+                    {
+                        <a class="btn btn-warning btn-lg" asp-controller="Application" asp-action="Index">Go to my application</a>
+                    }
+                    else if (User.IsInRole(Roles.Officer) || User.IsInRole(Roles.Administrator))
+                    {
+                        <a class="btn btn-warning btn-lg" asp-controller="Officer" asp-action="Index">Review applications</a>
+                    }
+                    else
+                    {
+                        <a class="btn btn-warning btn-lg" asp-controller="Account" asp-action="Register">Start your application</a>
+                        <a class="btn btn-outline-light btn-lg" asp-controller="Account" asp-action="Login">I already have an account</a>
+                    }
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5">
+    <h2 class="h3 fw-bold text-center mb-4">How it works</h2>
+    <div class="row g-4">
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 card-hover"><div class="card-body">
+                <span class="step-number mb-3">1</span>
+                <h3 class="h5">Create an account</h3>
+                <p class="text-muted mb-0">Register with your email and a secure password.</p>
+            </div></div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 card-hover"><div class="card-body">
+                <span class="step-number mb-3">2</span>
+                <h3 class="h5">Apply and upload</h3>
+                <p class="text-muted mb-0">Complete the form and upload your photo and COSC/LGCSE certificate.</p>
+            </div></div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 card-hover"><div class="card-body">
+                <span class="step-number mb-3">3</span>
+                <h3 class="h5">Automatic checks</h3>
+                <p class="text-muted mb-0">Age, citizenship, documents and your certificate grades are checked against the requirements.</p>
+            </div></div>
+        </div>
+        <div class="col-md-6 col-lg-3">
+            <div class="card h-100 card-hover"><div class="card-body">
+                <span class="step-number mb-3">4</span>
+                <h3 class="h5">Written test and tracking</h3>
+                <p class="text-muted mb-0">Take the online test once and follow your application status at any time.</p>
+            </div></div>
+        </div>
+    </div>
+</section>
+
+<section class="bg-light py-5">
+    <div class="container">
+        <div class="row g-4">
+            <div class="col-lg-6">
+                <h2 class="h4 fw-bold">What you will need</h2>
+                <ul class="checklist">
+                    <li>A valid National ID or passport number</li>
+                    <li>A recent passport-style photo (JPG or PNG, max 2 MB)</li>
+                    <li>Your COSC or LGCSE certificate (JPG, PNG or PDF, max 5 MB)</li>
+                    <li>About 30 minutes of uninterrupted time for the written test</li>
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <h2 class="h4 fw-bold">How the automated checks are used</h2>
+                <p class="text-muted">
+                    Basic requirements such as age and document completeness are checked with fixed rules.
+                    Your certificate is read automatically to find your subjects and grades; anything the system is not sure about
+                    is flagged for a recruitment officer to verify. The system only supports officers &ndash;
+                    <strong>final decisions are always made by authorised LDF personnel.</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+</section>

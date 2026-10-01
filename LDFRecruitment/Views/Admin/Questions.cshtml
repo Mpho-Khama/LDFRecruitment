@@ -1,0 +1,26 @@
+@model List<Question>
+@{ ViewData["Title"] = "Question bank"; }
+<div class="container py-4">
+    <div class="d-flex justify-content-between mb-3">
+        <h1 class="h3">Question bank <span class="text-muted fs-6">(@Model.Count)</span></h1>
+        <a class="btn btn-ldf" asp-action="CreateQuestion">Add question</a>
+    </div>
+    <table class="table table-sm align-middle">
+        <thead class="table-light"><tr><th>Category</th><th>Question</th><th>Answer</th><th></th></tr></thead>
+        <tbody>
+        @foreach (var q in Model)
+        {
+            <tr>
+                <td>@q.Category</td>
+                <td>@q.Text</td>
+                <td>@q.CorrectOption</td>
+                <td>
+                    <form asp-action="DeleteQuestion" asp-route-id="@q.Id" method="post" onsubmit="return confirm('Delete this question?');">
+                        <button class="btn btn-sm btn-outline-danger" type="submit">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+        </tbody>
+    </table>
+</div>

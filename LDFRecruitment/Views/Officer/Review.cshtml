@@ -1,0 +1,134 @@
+@model ReviewViewModel
+@{
+    var app = Model.Application;
+    var a = app.Applicant!;
+    var asmt = app.Assessment;
+    ViewData["Title"] = "Review " + a.FullName;
+    string Tick(bool b) => b ? "✔" : "✘";
+}
+<div class="container py-4">
+    <a asp-action="Index" class="small">&larr; All applications</a>
+    <div class="d-flex justify-content-between align-items-center mt-2 mb-3">
+        <h1 class="h3 mb-0">@a.FullName</h1>
+        <span class="badge text-bg-primary fs-6">@app.Status</span>
+    </div>
+
+    <div class="alert alert-info small">
+        Extracted grades and the rule-based result are <strong>decision support only</strong>. Verify anything flagged against the certificate before deciding.
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card mb-4"><div class="card-header fw-semibold">Applicant</div>
+            <div class="card-body">
+                <div class="d-flex gap-3">
+                    @if (Model.PhotoDocumentId is int pid)
+                    {
+                        <img src="@Url.Action("Show", "Document", new { id = pid })" alt="Applicant photo" class="rounded border" style="width:110px;height:140px;object-fit:cover" />
+                    }
+                    <dl class="row mb-0 small flex-grow-1">
+                        <dt class="col-5">Date of birth</dt><dd class="col-7">@a.DateOfBirth?.ToString("dd MMM yyyy")</dd>
+                        <dt class="col-5">Gender</dt><dd class="col-7">@a.Gender</dd>
+                        <dt class="col-5">ID / passport</dt><dd class="col-7">@a.NationalIdNumber</dd>
+                        <dt class="col-5">Citizenship</dt><dd class="col-7">@a.Citizenship</dd>
+                        <dt class="col-5">Phone</dt><dd class="col-7">@a.Phone</dd>
+                        <dt class="col-5">District</dt><dd class="col-7">@a.District</dd>
+                        <dt class="col-5">Address</dt><dd class="col-7">@a.Address</dd>
+                    </dl>
+                </div>
+                @if (Model.CertificateDocumentId is int cid)
+                {
+                    <a class="btn btn-sm btn-outline-secondary mt-3" target="_blank" asp-controller="Document" asp-action="Show" asp-route-id="@cid">Open certificate</a>
+                }
+            </div></div>
+
+            <div class="card mb-4"><div class="card-header fw-semibold">Rule-based eligibility</div>
+            <div class="card-body">
+                @if (asmt == null) { <p class="text-muted mb-0">Not assessed.</p> }
+                else
+                {
+                    <ul class="list-unstyled mb-2">
+                        <li>@Tick(asmt.AgeOk) Age @(asmt.AgeAtAssessment?.ToString() ?? "-")</li>
+                        <li>@Tick(asmt.CitizenshipOk) Citizenship</li>
+                        <li>@Tick(asmt.DocumentsComplete) Documents complete</li>
+                        <li>@Tick(asmt.EducationOk) Education (@asmt.CreditCount credits)</li>
+                    </ul>
+                    <p class="mb-1"><strong>Result:</strong> @(asmt.IsEligible ? "Meets all rules" : "Does not meet all rules")</p>
+                    <p class="small text-muted mb-0">@asmt.Summary</p>
+                }
+            </div></div>
+
+            <div class="card"><div class="card-header fw-semibold">Written test</div>
+            <div class="card-body">
+                @if (app.TestResult is { IsSubmitted: true } t) { <p class="mb-0">Score: <strong>@t.Score / @t.TotalQuestions</strong></p> }
+                else if (app.TestResult != null) { <p class="mb-0 text-muted">Started, not yet submitted.</p> }
+                else { <p class="mb-0 text-muted">Not taken.</p> }
+            </div></div>
+        </div>
+
+        <div class="col-lg-6">
+            <div class="card mb-4"><div class="card-header fw-semibold">Certificate grades (OCR + NLP extraction)</div>
+            <div class="card-body">
+                @if (!string.IsNullOrEmpty(app.ExtractionError))
+                {
+                    <div class="alert alert-warning small">@app.ExtractionError</div>
+                }
+                <p class="small text-muted">Confidence threshold: @Model.ConfidenceThreshold.ToString("P0"). Rows below it are highlighted and need verification.</p>
+                <div class="table-responsive">
+                <table class="table table-sm align-middle">
+                    <thead><tr><th>Subject</th><th style="width:90px">Grade</th><th>Conf.</th><th></th></tr></thead>
+                    <tbody>
+                    @foreach (var g in app.Grades.OrderBy(g => g.Subject))
+                    {
+                        <tr class="@(g.NeedsReview && !g.IsVerified ? "low-conf" : "")">
+                            <td colspan="4">
+                                <form asp-action="VerifyGrade" method="post" class="d-flex gap-2 align-items-center">
+                                    <input type="hidden" name="gradeId" value="@g.Id" />
+                                    <input class="form-control form-control-sm" name="subject" value="@g.Subject" />
+                                    <input class="form-control form-control-sm" style="width:80px" name="grade" value="@g.Grade" maxlength="5" />
+                                    <span class="small text-nowrap">@g.Confidence.ToString("P0")</span>
+                                    @if (g.IsVerified) { <span class="badge text-bg-success">Verified</span> }
+                                    else if (g.NeedsReview) { <span class="badge text-bg-warning">Check</span> }
+                                    <button class="btn btn-sm btn-outline-success" type="submit" title="Confirm / save">✔</button>
+                                    <button class="btn btn-sm btn-outline-danger" type="submit" formaction="@Url.Action("DeleteGrade", new { gradeId = g.Id })" formnovalidate title="Remove">✘</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                    @if (!app.Grades.Any())
+                    {
+                        <tr><td colspan="4" class="text-muted">No grades were extracted. Add them manually below.</td></tr>
+                    }
+                    </tbody>
+                </table>
+                </div>
+                <form asp-action="AddGrade" method="post" class="d-flex gap-2 mt-2">
+                    <input type="hidden" name="applicationId" value="@app.Id" />
+                    <input class="form-control form-control-sm" name="subject" placeholder="Add subject" required />
+                    <input class="form-control form-control-sm" style="width:80px" name="grade" placeholder="Grade" maxlength="5" required />
+                    <button class="btn btn-sm btn-outline-primary" type="submit">Add</button>
+                </form>
+            </div></div>
+
+            <div class="card mb-4"><div class="card-header fw-semibold">Decision</div>
+            <div class="card-body">
+                <form asp-action="SetStatus" method="post">
+                    <input type="hidden" name="id" value="@app.Id" />
+                    <div class="mb-2">
+                        <select name="status" class="form-select" asp-items="@(Html.GetEnumSelectList<ApplicationStatus>().Where(i => i.Value != "0"))"></select>
+                    </div>
+                    <textarea name="note" class="form-control mb-2" rows="2" maxlength="500" placeholder="Note (shown to applicant)">@app.OfficerNotes</textarea>
+                    <button class="btn btn-ldf" type="submit">Update status</button>
+                </form>
+            </div></div>
+
+            <div class="card"><div class="card-header fw-semibold">History</div>
+            <ul class="list-group list-group-flush small">
+                @foreach (var h in app.History.OrderByDescending(h => h.ChangedAt))
+                {
+                    <li class="list-group-item">@h.ChangedAt.ToLocalTime().ToString("dd MMM yyyy HH:mm") &ndash; <strong>@h.Status</strong> by @h.ChangedBy @(h.Note != null ? "- " + h.Note : "")</li>
+                }
+            </ul></div>
+        </div>
+    </div>
+</div>

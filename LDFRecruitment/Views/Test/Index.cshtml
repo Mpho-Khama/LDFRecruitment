@@ -1,0 +1,37 @@
+@model Application
+@{
+    ViewData["Title"] = "Written test";
+    var t = Model.TestResult;
+}
+<div class="container py-4">
+    <div class="row justify-content-center"><div class="col-lg-8">
+        <h1 class="h3 mb-3">Written test</h1>
+        <div class="card card-body">
+            @if (t == null)
+            {
+                <p>The test contains a fixed number of multiple-choice questions drawn at random from several subjects
+                   (Mathematics, Science, English, ICT, Sesotho and General Knowledge).</p>
+                <ul>
+                    <li>You have <strong>one attempt only</strong>.</li>
+                    <li>Each question has one correct answer.</li>
+                    <li>If you leave the page you can return and continue the same set of questions.</li>
+                </ul>
+                <form asp-action="Start" method="post"><button class="btn btn-ldf" type="submit">Start test</button></form>
+            }
+            else if (!t.IsSubmitted)
+            {
+                <p>You have a test in progress.</p>
+                <a class="btn btn-ldf" asp-action="Take">Continue test</a>
+            }
+            else
+            {
+                <div class="alert alert-success mb-0">
+                    You completed the test on @t.SubmittedAt!.Value.ToLocalTime().ToString("dd MMM yyyy HH:mm").
+                    Your score: <strong>@t.Score / @t.TotalQuestions</strong>.
+                    The test cannot be retaken.
+                </div>
+            }
+        </div>
+        <a class="btn btn-link mt-2" asp-controller="Application" asp-action="Index">Back to my application</a>
+    </div></div>
+</div>

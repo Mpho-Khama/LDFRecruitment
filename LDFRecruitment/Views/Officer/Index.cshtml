@@ -1,0 +1,51 @@
+@model OfficerListViewModel
+@{ ViewData["Title"] = "Applications"; }
+<div class="container py-4">
+    <h1 class="h3 mb-3">Submitted applications</h1>
+
+    <form method="get" class="row g-2 mb-3">
+        <div class="col-md-4"><input class="form-control" name="search" value="@Model.Search" placeholder="Search name or ID number" /></div>
+        <div class="col-md-3">
+            <select class="form-select" name="status" asp-items="@(Html.GetEnumSelectList<ApplicationStatus>().Where(i => i.Value != "0"))">
+                <option value="">All statuses</option>
+            </select>
+        </div>
+        <div class="col-md-3 d-flex align-items-center">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="flaggedOnly" value="true" id="flagged" checked="@Model.FlaggedOnly" />
+                <label class="form-check-label" for="flagged">Needs grade verification</label>
+            </div>
+        </div>
+        <div class="col-md-2"><button class="btn btn-ldf w-100" type="submit">Filter</button></div>
+    </form>
+
+    <div class="table-responsive">
+    <table class="table table-hover align-middle">
+        <thead class="table-light">
+            <tr><th>Applicant</th><th>Submitted</th><th>Status</th><th>Rules</th><th>Flagged grades</th><th>Test</th><th></th></tr>
+        </thead>
+        <tbody>
+        @foreach (var i in Model.Items)
+        {
+            <tr>
+                <td>@i.FullName</td>
+                <td>@(i.SubmittedAt?.ToLocalTime().ToString("dd MMM yyyy") ?? "-")</td>
+                <td><span class="badge text-bg-secondary">@i.Status</span></td>
+                <td>
+                    @if (i.IsEligible == true) { <span class="badge text-bg-success">Meets rules</span> }
+                    else if (i.IsEligible == false) { <span class="badge text-bg-warning">Does not meet</span> }
+                    else { <span class="text-muted">-</span> }
+                </td>
+                <td>@if (i.FlaggedGrades > 0) { <span class="badge text-bg-warning">@i.FlaggedGrades</span> } else { <span class="text-muted">0</span> }</td>
+                <td>@(i.TestScore ?? "-")</td>
+                <td><a class="btn btn-sm btn-outline-primary" asp-action="Review" asp-route-id="@i.ApplicationId">Review</a></td>
+            </tr>
+        }
+        @if (Model.Items.Count == 0)
+        {
+            <tr><td colspan="7" class="text-center text-muted py-4">No applications found.</td></tr>
+        }
+        </tbody>
+    </table>
+    </div>
+</div>

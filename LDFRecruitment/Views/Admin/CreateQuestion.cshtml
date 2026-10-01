@@ -1,0 +1,30 @@
+@model Question
+@{ ViewData["Title"] = "Add question"; }
+<div class="container py-4">
+    <div class="row justify-content-center"><div class="col-lg-8">
+        <h1 class="h3 mb-3">Add question</h1>
+        <form asp-action="CreateQuestion" method="post" class="card card-body">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="mb-3">
+                <label asp-for="Category" class="form-label"></label>
+                <select asp-for="Category" class="form-select">
+                    <option>Mathematics</option><option>Science</option><option>English</option>
+                    <option>ICT</option><option>Sesotho</option><option>General Knowledge</option>
+                </select>
+            </div>
+            <div class="mb-3"><label asp-for="Text" class="form-label"></label><textarea asp-for="Text" class="form-control" rows="2"></textarea><span asp-validation-for="Text" class="text-danger"></span></div>
+            <div class="row g-3">
+                <div class="col-md-6"><label asp-for="OptionA" class="form-label"></label><input asp-for="OptionA" class="form-control" /><span asp-validation-for="OptionA" class="text-danger"></span></div>
+                <div class="col-md-6"><label asp-for="OptionB" class="form-label"></label><input asp-for="OptionB" class="form-control" /><span asp-validation-for="OptionB" class="text-danger"></span></div>
+                <div class="col-md-6"><label asp-for="OptionC" class="form-label"></label><input asp-for="OptionC" class="form-control" /><span asp-validation-for="OptionC" class="text-danger"></span></div>
+                <div class="col-md-6"><label asp-for="OptionD" class="form-label"></label><input asp-for="OptionD" class="form-control" /><span asp-validation-for="OptionD" class="text-danger"></span></div>
+            </div>
+            <div class="my-3">
+                <label asp-for="CorrectOption" class="form-label"></label>
+                <select asp-for="CorrectOption" class="form-select"><option>A</option><option>B</option><option>C</option><option>D</option></select>
+                <span asp-validation-for="CorrectOption" class="text-danger"></span>
+            </div>
+            <div class="d-flex gap-2"><button class="btn btn-ldf" type="submit">Save</button><a class="btn btn-outline-secondary" asp-action="Questions">Cancel</a></div>
+        </form>
+    </div></div>
+</div>

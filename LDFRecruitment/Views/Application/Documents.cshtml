@@ -1,0 +1,34 @@
+@model Application
+@{
+    ViewData["Title"] = "Documents";
+    var photo = Model.Documents.FirstOrDefault(d => d.Type == DocumentType.Photo);
+    var cert = Model.Documents.FirstOrDefault(d => d.Type == DocumentType.Certificate);
+}
+<div class="container py-4">
+    <div class="row justify-content-center"><div class="col-lg-8">
+        <h1 class="h3 mb-3">Upload documents</h1>
+        <form asp-action="Documents" method="post" enctype="multipart/form-data" class="card card-body">
+            <div class="mb-4">
+                <label class="form-label fw-semibold" for="photo">Passport-style photo (JPG/PNG, max 2 MB)</label>
+                <input class="form-control" type="file" id="photo" name="photo" accept=".jpg,.jpeg,.png" />
+                @if (photo != null)
+                {
+                    <div class="form-text">Uploaded: @photo.OriginalFileName &ndash; <a asp-controller="Document" asp-action="Show" asp-route-id="@photo.Id" target="_blank">view</a>. Choose a new file to replace it.</div>
+                }
+            </div>
+            <div class="mb-4">
+                <label class="form-label fw-semibold" for="certificate">COSC / LGCSE certificate (JPG/PNG/PDF, max 5 MB)</label>
+                <input class="form-control" type="file" id="certificate" name="certificate" accept=".jpg,.jpeg,.png,.pdf" />
+                <div class="form-text">Use a clear, flat, well-lit scan or photo. Blurry images reduce how accurately your grades can be read.</div>
+                @if (cert != null)
+                {
+                    <div class="form-text">Uploaded: @cert.OriginalFileName &ndash; <a asp-controller="Document" asp-action="Show" asp-route-id="@cert.Id" target="_blank">view</a>. Choose a new file to replace it.</div>
+                }
+            </div>
+            <div class="d-flex gap-2">
+                <button class="btn btn-ldf" type="submit">Upload</button>
+                <a class="btn btn-outline-secondary" asp-action="Index">Back</a>
+            </div>
+        </form>
+    </div></div>
+</div>
